@@ -1,4 +1,12 @@
-const axios = require('axios'); // Ensure axios is installed via npm
+const express = require('express');
+const axios = require('axios');
+
+// Initialize express app
+const app = express();
+const port = 3000; // You can use any port
+
+// Counter to track the number of requests sent
+let requestCount = 0;
 
 // Dynamic values
 const source_ids = [
@@ -6,7 +14,6 @@ const source_ids = [
     "aeb7fd8e-d4cf-4c84-ba92-69250ea28bff",
     "34c80a77-cc59-49f2-a186-23e7178abde4",
 ];
-
 
 const eventTypes = [
     "page-view",
@@ -124,7 +131,7 @@ function getRandomPayload() {
         "events": [
             {
                 "properties": { "category": "user-interaction" },
-                "type": eventType,
+                "type": getRandomEventType(),
                 "options": {},
                 "context": {
                     "page": {
@@ -148,6 +155,7 @@ function sendPostRequest() {
     axios.post('https://aidna.exyntra.com/service/track', payload, { headers: { 'Content-Type': 'application/json' } })
         .then(response => {
             console.log('Success:', response.data);
+            requestCount++; // Increment the request count after a successful request
         })
         .catch(error => {
             console.error('Error:', error);
@@ -157,5 +165,15 @@ function sendPostRequest() {
     setTimeout(sendPostRequest, Math.floor(Math.random() * 7000) + 3000); // Random delay between 3 to 13 seconds
 }
 
-// Start the loop
+// Root route to show how many requests have been sent
+app.get('/', (req, res) => {
+    res.send(`Server up! Requests sent: ${requestCount}`);
+});
+
+// Start the loop of sending requests
 sendPostRequest();
+
+// Start the Express server
+app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+});
