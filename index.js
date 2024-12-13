@@ -70,11 +70,6 @@ function getRandomElement(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
-// Function to get random event properties
-function getRandomEventType() {
-    return getRandomElement(eventTypes);
-}
-
 // Function to get a random payload with dynamic data
 function getRandomPayload() {
     const timeZone = getRandomElement(timeZones);
@@ -85,7 +80,7 @@ function getRandomPayload() {
     const sourceId = getRandomElement(source_ids);
 
     // Random event data
-    const eventType = getRandomEventType();
+    const eventType = getRandomElement(eventTypes);
     const eventUrl = `http://127.0.0.1:5500/app/demo/${eventType}.html`;
     const eventTitle = eventType === 'page-view' ? "Ludus - Electronics, Apparel, Computers, Books, DVDs & more" : "User Interaction Event";
 
@@ -93,7 +88,7 @@ function getRandomPayload() {
         "source": { "id": sourceId },
         "context": {
             "time": {
-                "local": new Date().toLocaleString(),
+                "local": new Date(Date.now() - Math.floor(Math.random() * 5000)).toLocaleString(), // Small random time offset
                 "tz": timeZone
             },
             "browser": {
@@ -131,7 +126,7 @@ function getRandomPayload() {
         "events": [
             {
                 "properties": { "category": "user-interaction" },
-                "type": getRandomEventType(),
+                "type": eventType,
                 "options": {},
                 "context": {
                     "page": {
@@ -140,7 +135,7 @@ function getRandomPayload() {
                         "hash": "",
                         "title": eventTitle,
                         "referer": { "host": null, "query": null },
-                        "history": { "length": 17 }
+                        "history": { "length": Math.floor(Math.random() * 20) + 1 } // Random history length
                     }
                 }
             }
@@ -158,11 +153,11 @@ function sendPostRequest() {
             requestCount++; // Increment the request count after a successful request
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Error:', error.message);
         });
 
-    // Schedule the next request
-    setTimeout(sendPostRequest, Math.floor(Math.random() * 7000) + 3000); // Random delay between 3 to 13 seconds
+    // Schedule the next request with an average of 2 seconds interval (0.5 events per second)
+    setTimeout(sendPostRequest, Math.floor(Math.random() * 1500) + 3000); // Random delay between 1.5s to 2.5s
 }
 
 // Root route to show how many requests have been sent
